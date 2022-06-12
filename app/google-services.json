@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "474256792833",
+    "project_id": "loginandfirestone-81b10",
+    "storage_bucket": "loginandfirestone-81b10.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:474256792833:android:8168a2c131ac55b3accf00",
+        "android_client_info": {
+          "package_name": "com.example.loginandfirestone"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "474256792833-d70lenr1hl420d424i6d861cl9b4uskd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA5zO8_C1yYEQFlD3_SQVpO90eJ2uUGzIs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "474256792833-d70lenr1hl420d424i6d861cl9b4uskd.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
