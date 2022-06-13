@@ -37,6 +37,33 @@ class Firestore {
                 emit(Resource.Error(message = e.message.toString()))
             }
         }
+
+        fun saveSomeCollection(): Flow<Resource<Unit>> = flow {
+            emit(Resource.Loading())
+            try {
+                val ref = db.collection("data")
+                    .document()
+                ref.set(
+                    hashMapOf(
+                        "userID" to user["userId"]
+                    )
+                ).await()
+                val featureCollectionRef = ref.collection("feature")
+                val featureRef = featureCollectionRef.document("1235436");
+                featureRef.set(
+                    hashMapOf(
+                        "attribute1" to "value1",
+                        "attribute2" to "value2",
+                        "attribute3" to "value3",
+                        "attribute4" to "value4",
+                        "attribute5" to "value5",
+                    )
+                ).await()
+                emit(Resource.Success(data = Unit))
+            } catch (e: FirebaseFirestoreException) {
+                emit(Resource.Error(message = e.message.toString()))
+            }
+        }
     }
 
 }
