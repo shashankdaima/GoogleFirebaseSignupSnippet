@@ -9,10 +9,12 @@ import android.util.Log
 import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.ProgressBar
+import android.widget.Toast
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.loginandfirestone.databinding.ActivityMainBinding
 import com.google.android.gms.auth.api.identity.BeginSignInRequest
 import com.google.android.gms.auth.api.identity.GetSignInIntentRequest
@@ -25,6 +27,8 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -81,6 +85,26 @@ class MainActivity : AppCompatActivity() {
         if (currentUser == null) {
             oneTapSignIn()
         }
+        binding.setupUser.setOnClickListener {
+            lifecycleScope.launch {
+                Firestore.saveUsertoFirestore(Firestore.user).collect {
+                    when (it) {
+                        is Resource.Error -> {
+                            Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_LONG).show()
+                        }
+                        is Resource.Loading -> {
+                            Toast.makeText(this@MainActivity, "Loading", Toast.LENGTH_LONG).show()
+
+                        }
+                        is Resource.Success -> {
+                            Toast.makeText(this@MainActivity, it.data.toString(), Toast.LENGTH_LONG)
+                                .show()
+
+                        }
+                    }
+                }
+            }
+        }
     }
 
     fun setProgressBar(progressBar: ProgressBar) {
@@ -107,7 +131,6 @@ class MainActivity : AppCompatActivity() {
         val currentUser = auth.currentUser
         updateUI(currentUser)
     }
-
 
 
     private fun firebaseAuthWithGoogle(idToken: String) {
