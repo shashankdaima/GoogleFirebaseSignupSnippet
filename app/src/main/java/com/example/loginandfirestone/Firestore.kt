@@ -1,7 +1,6 @@
 package com.example.loginandfirestone
 
 import android.annotation.SuppressLint
-import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ktx.firestore
@@ -9,8 +8,6 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.tasks.await
-import java.util.*
-import kotlin.collections.HashMap
 
 class Firestore {
 
@@ -49,12 +46,12 @@ class Firestore {
                     )
                 ).await()
                 val featureCollectionRef = ref.collection("feature")
-                val featureRef = featureCollectionRef.document("1235436");
+                val featureRef = featureCollectionRef.document("1235436")
                 featureRef.set(
                     hashMapOf(
                         "attribute1" to "value1",
                         "attribute2" to "value2",
-                        "attribute3" to "value3",
+                        "attribute3" to 1,
                         "attribute4" to "value4",
                         "attribute5" to "value5",
                     )

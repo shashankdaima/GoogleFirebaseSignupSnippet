@@ -27,7 +27,6 @@ import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
@@ -133,11 +132,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun showProgressBar() {
-        mProgressBar?.setVisibility(View.VISIBLE)
+        mProgressBar?.visibility = View.VISIBLE
     }
 
     fun hideProgressBar() {
-        mProgressBar?.setVisibility(View.INVISIBLE)
+        mProgressBar?.visibility = View.INVISIBLE
     }
 
     fun hideKeyboard(view: View) {
