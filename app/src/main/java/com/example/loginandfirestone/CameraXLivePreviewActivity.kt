@@ -16,6 +16,7 @@
 
 package com.example.loginandfirestone
 
+import FaceDetectorProcessor
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
 import android.util.Log
@@ -30,9 +31,14 @@ import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.example.loginandfirestone.facedetector.*
+import androidx.lifecycle.lifecycleScope
+import com.example.loginandfirestone.facedetector.CameraXViewModel
+import com.example.loginandfirestone.facedetector.GraphicOverlay
+import com.example.loginandfirestone.facedetector.PreferenceUtils
+import com.example.loginandfirestone.facedetector.VisionImageProcessor
 import com.google.android.gms.common.annotation.KeepName
 import com.google.mlkit.common.MlKitException
+import kotlinx.coroutines.launch
 
 /** Live preview demo app for ML Kit APIs using CameraX. */
 @KeepName
@@ -46,11 +52,12 @@ class CameraXLivePreviewActivity :
     private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
     private var imageProcessor: VisionImageProcessor? = null
+    private lateinit var trackingButton: Button
     private var needUpdateGraphicOverlayImageSourceInfo = false
     private var selectedModel = FACE_DETECTION
-    private var lensFacing = CameraSelector.LENS_FACING_BACK
+    private var lensFacing = CameraSelector.LENS_FACING_FRONT
     private var cameraSelector: CameraSelector? = null
-
+    private lateinit var viewModel: CameraXViewModel
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.d(TAG, "onCreate")
@@ -67,24 +74,16 @@ class CameraXLivePreviewActivity :
         if (graphicOverlay == null) {
             Log.d(TAG, "graphicOverlay is null")
         }
-        val spinner = findViewById<Spinner>(R.id.spinner)
-        val options: MutableList<String> = ArrayList()
 
-        options.add(FACE_DETECTION)
-
-
-        // Creating adapter for spinner
-        val dataAdapter = ArrayAdapter(this, R.layout.spinner_style, options)
-        // Drop down layout style - list view with radio button
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        // attaching data adapter to spinner
-        spinner.adapter = dataAdapter
-        spinner.onItemSelectedListener = this
         val facingSwitch = findViewById<ToggleButton>(R.id.facing_switch)
         facingSwitch.setOnCheckedChangeListener(this)
-        ViewModelProvider(this, ViewModelProvider.AndroidViewModelFactory.getInstance(application))
+        viewModel = ViewModelProvider(
+            this,
+            ViewModelProvider.AndroidViewModelFactory.getInstance(application)
+        )
             .get(CameraXViewModel::class.java)
-            .processCameraProvider
+
+        viewModel.processCameraProvider
             .observe(
                 this,
                 Observer { provider: ProcessCameraProvider? ->
@@ -92,7 +91,44 @@ class CameraXLivePreviewActivity :
                     bindAllCameraUseCases()
                 }
             )
+        trackingButton = findViewById(R.id.trackingButton)
+        trackingButton.setOnClickListener {
+            viewModel.toggleTrackingStatus();
+        }
+        viewModel.trackingStatus.observe(this) {
+            when (it) {
+                true -> {
+                    trackingButton.text = "Stop Tracking"
 
+                }
+                false -> {
+                    trackingButton.text = "Start Tracking"
+                    Log.d(TAG, "onCreate: ${viewModel.listOfFaces.size}")
+                    lifecycleScope.launch {
+                        Firestore.saveSomeCollection(viewModel.listOfFaces).collect {
+                            when (it) {
+                                is Resource.Error -> {
+                                    Toast.makeText(
+                                        this@CameraXLivePreviewActivity,
+                                        "${it.message}",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                is Resource.Loading -> {
+                                    findViewById<ProgressBar>(R.id.progressBar2).visibility =
+                                        View.VISIBLE
+                                }
+                                is Resource.Success -> {
+                                    findViewById<ProgressBar>(R.id.progressBar2).visibility =
+                                        View.INVISIBLE
+
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
 
     }
 
@@ -203,29 +239,13 @@ class CameraXLivePreviewActivity :
         if (imageProcessor != null) {
             imageProcessor!!.stop()
         }
-        imageProcessor =
-            try {
-                when (selectedModel) {
+        val faceDetectorOptions = PreferenceUtils.getFaceDetectorOptions(this)
 
-                    FACE_DETECTION -> {
-                        Log.i(TAG, "Using Face Detector Processor")
-                        val faceDetectorOptions = PreferenceUtils.getFaceDetectorOptions(this)
-                        FaceDetectorProcessor(this, faceDetectorOptions)
-                    }
-
-
-                    else -> throw IllegalStateException("Invalid model name")
-                }
-            } catch (e: Exception) {
-                Log.e(TAG, "Can not create image processor: $selectedModel", e)
-                Toast.makeText(
-                    applicationContext,
-                    "Can not create image processor: " + e.localizedMessage,
-                    Toast.LENGTH_LONG
-                )
-                    .show()
-                return
+        imageProcessor = FaceDetectorProcessor(this, faceDetectorOptions) { faces ->
+            if (viewModel.trackingStatus.value ?: false) {
+                viewModel.submitListOfFaces(faces)
             }
+        }
 
         val builder = ImageAnalysis.Builder()
         val targetResolution = PreferenceUtils.getCameraXTargetResolution(this, lensFacing)

@@ -19,17 +19,9 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="3"
+        android:layout_weight="2"
         android:gravity="center_horizontal"
         android:orientation="vertical">
-
-        <!--        <ImageView-->
-        <!--            style="@style/ThemeOverlay.FirebaseIcon"-->
-        <!--            android:id="@+id/googleIcon"-->
-        <!--            android:contentDescription="@string/desc_firebase_lockup"-->
-        <!--            android:src="@drawable/firebase_lockup_400"-->
-        <!--            android:layout_width="wrap_content"-->
-        <!--            android:layout_height="wrap_content" />-->
 
         <TextView
             android:id="@+id/titleText"
@@ -54,7 +46,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_weight="2"
         android:background="@color/grey_300"
         android:paddingTop="16dp">
 
@@ -90,14 +82,24 @@
             app:layout_constraintTop_toBottomOf="@+id/signOutButton" />
 
         <Button
-            android:id="@+id/sendData"
+            android:id="@+id/openCamera2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Send Data"
+            android:text="Open Camera"
             android:theme="@style/ThemeOverlay.MyDarkButton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/setupUser" />
+
+        <Button
+            android:id="@+id/getCurrentUserData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get Current User's Data"
+            android:theme="@style/ThemeOverlay.MyDarkButton"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/openCamera2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

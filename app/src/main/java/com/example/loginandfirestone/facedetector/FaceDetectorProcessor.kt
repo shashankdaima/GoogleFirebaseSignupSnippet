@@ -14,17 +14,23 @@
  * limitations under the License.
  */
 
-package com.example.loginandfirestone.facedetector
 
 import android.content.Context
 import android.util.Log
+import com.example.loginandfirestone.facedetector.FaceGraphic
+import com.example.loginandfirestone.facedetector.GraphicOverlay
+import com.example.loginandfirestone.facedetector.VisionProcessorBase
 import com.google.android.gms.tasks.Task
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.*
 import java.util.*
 
 /** Face Detector Demo.  */
-class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptions?) :
+class FaceDetectorProcessor(
+    context: Context,
+    detectorOptions: FaceDetectorOptions?,
+    private val saveFaceInLocalCache: (List<Face>) -> Unit
+) :
     VisionProcessorBase<List<Face>>(context) {
 
     private val detector: FaceDetector
@@ -54,6 +60,7 @@ class FaceDetectorProcessor(context: Context, detectorOptions: FaceDetectorOptio
         for (face in faces) {
             graphicOverlay.add(FaceGraphic(graphicOverlay, face))
             logExtrasForTesting(face)
+            saveFaceInLocalCache(faces)
         }
     }
 

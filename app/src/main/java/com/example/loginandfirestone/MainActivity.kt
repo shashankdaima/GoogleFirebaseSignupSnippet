@@ -104,25 +104,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        binding.sendData.setOnClickListener {
-            lifecycleScope.launch {
-                Firestore.saveSomeCollection().collect {
-                    when (it) {
-                        is Resource.Error -> {
-                            Toast.makeText(this@MainActivity, it.message, Toast.LENGTH_LONG).show()
-                        }
-                        is Resource.Loading -> {
-                            Toast.makeText(this@MainActivity, "Loading", Toast.LENGTH_LONG).show()
-
-                        }
-                        is Resource.Success -> {
-                            Toast.makeText(this@MainActivity, it.data.toString(), Toast.LENGTH_LONG)
-                                .show()
-
-                        }
-                    }
-                }
-            }
+        binding.openCamera2.setOnClickListener {
+            val intent = Intent(this, CameraXLivePreviewActivity::class.java)
+            startActivity(intent)
         }
 
     }

@@ -29,8 +29,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.mlkit.vision.face.Face;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import kotlin.Pair;
+import kotlin.jvm.Volatile;
 
 /**
  * View model for interacting with CameraX.
@@ -40,6 +46,19 @@ public final class CameraXViewModel extends AndroidViewModel {
 
     private static final String TAG = "CameraXViewModel";
     private MutableLiveData<ProcessCameraProvider> cameraProviderLiveData;
+
+    @Volatile
+    public List<Pair<Long, Face>> listOfFaces = new ArrayList<>();
+    private MutableLiveData<Boolean> _trackingStatus = new MutableLiveData<Boolean>(false);
+    public LiveData<Boolean> trackingStatus = _trackingStatus;
+
+    public void toggleTrackingStatus() {
+        _trackingStatus.setValue(!_trackingStatus.getValue());
+    }
+
+    public void submitListOfFaces(List<Face> listOfFaces) {
+        this.listOfFaces.add(new Pair(System.currentTimeMillis(), listOfFaces.get(0)));
+    }
 
     /**
      * Create an instance which interacts with the camera service via the given application context.
